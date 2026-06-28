@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trust Wallet Card — Крипто-карта</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a2e; background: #fff; -webkit-font-smoothing: antialiased; }
+a { text-decoration: none; color: inherit; }
+img { max-width: 100%; }
+
+/* Header */
+.header {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid #f0f0f0;
+}
+.header-left { display: flex; align-items: center; gap: 12px; }
+
+/* Language selector */
+.lang { position: relative; }
+.lang-select {
+  display: flex; align-items: center; gap: 4px;
+  padding: 6px 10px; border-radius: 20px;
+  border: 1px solid #e0e0e0; font-size: 13px; font-weight: 500;
+  background: #fff; cursor: pointer; user-select: none;
+}
+.lang-select .caret { font-size: 9px; margin-left: 2px; transition: transform .2s; }
+.lang.open .lang-select .caret { transform: rotate(180deg); }
+.lang-menu {
+  position: absolute; top: calc(100% + 6px); left: 0;
+  background: #fff; border: 1px solid #eaeaea; border-radius: 14px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+  padding: 6px; min-width: 170px;
+  opacity: 0; visibility: hidden; transform: translateY(-6px);
+  transition: opacity .18s, transform .18s, visibility .18s;
+  z-index: 200;
+}
+.lang.open .lang-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+.lang-option {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px; border-radius: 10px;
+  font-size: 14px; cursor: pointer;
+}
+.lang-option:hover { background: #f5f5fb; }
+.lang-option.active { background: #eef0ff; color: #3B5BFF; font-weight: 600; }
+.lang-option .flag { font-size: 16px; }
+.lang-option .check { margin-left: auto; color: #3B5BFF; opacity: 0; }
+.lang-option.active .check { opacity: 1; }
+
+.header-logos { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; }
+.header-logos .trust-logo { display: flex; align-items: center; gap: 3px; }
+.header-logos .trust-logo::before {
+  content: ''; width: 20px; height: 20px; border-radius: 50%;
+  background: linear-gradient(135deg, #0500FF, #3B82F6); display: inline-block;
+}
+.header-logos .sep { color: #ccc; font-weight: 400; }
+.btn-start {
+  padding: 8px 18px; border-radius: 20px;
+  background: #1a1a2e; color: #fff;
+  font-size: 13px; font-weight: 600; border: none; cursor: pointer;
+}
+
+/* Hero */
+.hero {
+  text-align: center; padding: 40px 20px 32px;
+  background: linear-gradient(180deg, #f8f8ff 0%, #fff 100%);
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 20px;
+  background: #f0f0ff; font-size: 12px; color: #666; margin-bottom: 24px;
+}
+.hero-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; }
+.hero h1 { font-size: 32px; font-weight: 800; line-height: 1.15; margin-bottom: 16px; letter-spacing: -0.5px; }
+.hero h1 .accent { color: #3B5BFF; }
+.hero p { font-size: 15px; color: #555; line-height: 1.5; margin-bottom: 24px; max-width: 340px; margin-left: auto; margin-right: auto; }
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px; border-radius: 28px;
+  background: linear-gradient(135deg, #3B5BFF, #6366f1);
+  color: #fff; font-size: 15px; font-weight: 600;
+  border: none; cursor: pointer; box-shadow: 0 4px 20px rgba(59,91,255,0.3);
+}
+.btn-primary::after { content: '→'; font-size: 16px; }
+.hero-link { display: block; margin-top: 14px; font-size: 14px; color: #3B5BFF; font-weight: 500; }
+
+/* Card visual */
+.card-visual {
+  margin: 24px auto 0; max-width: 300px;
+  background: linear-gradient(135deg, #e8eaff, #f0f4ff);
+  border-radius: 16px; padding: 24px; position: relative;
+  overflow: hidden;
+}
+.card-visual::after {
+  content: ''; position: absolute; top: -30px; right: -30px;
+  width: 120px; height: 120px; border-radius: 50%;
+  background: rgba(99,102,241,0.1);
+}
+.card-img {
+  width: 100%; height: 160px;
+  background: linear-gradient(135deg, #d4d8ff, #c7cbff);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: #666;
+  position: relative;
+}
+.card-chip {
+  position: absolute; left: 16px; top: 16px;
+  width: 36px; height: 26px; border-radius: 5px;
+  background: linear-gradient(135deg, #e0c36a, #d4a843);
+}
+.card-number { position: absolute; bottom: 16px; left: 16px; font-size: 13px; color: #888; letter-spacing: 2px; }
+
+/* Stats */
+.stats {
+  display: flex; justify-content: center; gap: 20px;
+  padding: 20px; font-size: 12px; color: #999;
+}
+.stats span { display: flex; align-items: center; gap: 4px; }
+.stats .check { color: #3B5BFF; }
+
+/* Trust bar */
+.trust-bar {
+  text-align: center; padding: 20px;
+  font-size: 12px; color: #888;
+}
+.trust-amount { font-size: 24px; font-weight: 700; color: #1a1a2e; }
+.trust-amount span { color: #22c55e; }
+
+/* Wallets */
+.wallets {
+  text-align: center; padding: 32px 20px;
+  background: #fafafe;
+}
+.wallets p { font-size: 14px; color: #888; margin-bottom: 20px; }
+.wallet-logos {
+  display: flex; justify-content: center; gap: 24px;
+  font-size: 15px; font-weight: 600;
+}
+
+/* Investors */
+.investors {
+  text-align: center; padding: 32px 20px;
+  border-top: 1px solid #f0f0f0;
+}
+.investors p { font-size: 13px; color: #aaa; margin-bottom: 16px; }
+.investor-logos {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 20px; font-size: 14px; font-weight: 600; color: #888;
+}
+
+/* Section badge */
+.section-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 20px;
+  background: linear-gradient(135deg, #f0f0ff, #e8e8ff);
+  font-size: 13px; font-weight: 500; color: #6366f1;
+  margin-bottom: 20px;
+}
+
+/* Features */
+.features { padding: 48px 20px; text-align: center; }
+.features h2 { font-size: 28px; font-weight: 800; line-height: 1.2; margin-bottom: 32px; }
+
+.feature-card {
+  background: #f8f8ff; border-radius: 20px;
+  padding: 28px 24px; margin-bottom: 16px;
+  text-align: left;
+}
+.feature-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; margin-bottom: 16px;
+}
+.feature-icon.blue { background: linear-gradient(135deg, #3B5BFF, #6366f1); color: #fff; }
+.feature-icon.light { background: #e8f0fe; color: #3B5BFF; }
+.feature-icon.green { background: #e8faf0; color: #22c55e; }
+.feature-icon.purple { background: #f0e8ff; color: #8b5cf6; }
+.feature-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.feature-card p { font-size: 14px; color: #666; line-height: 1.5; }
+
+/* Rewards */
+.rewards { padding: 48px 20px; text-align: center; }
+.rewards h2 { font-size: 28px; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
+.rewards > p { font-size: 14px; color: #666; line-height: 1.5; margin-bottom: 28px; max-width: 340px; margin-left: auto; margin-right: auto; }
+
+.reward-tiers { margin-bottom: 28px; }
+.reward-tier {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0; border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+.reward-tier .percent { font-size: 20px; font-weight: 700; color: #3B5BFF; }
+.reward-tier .label { color: #666; }
+
+.crypto-rewards {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; margin-bottom: 16px; position: relative;
+}
+.crypto-item {
+  background: #f8f8ff; border-radius: 16px;
+  padding: 20px 16px; text-align: center;
+}
+.crypto-item .icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  margin: 0 auto 8px; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 700;
+}
+.crypto-item .icon.btc { background: #f7931a; color: #fff; }
+.crypto-item .icon.eth { background: #627eea; color: #fff; }
+.crypto-item .icon.usdt { background: #26a17b; color: #fff; }
+.crypto-item .icon.sol { background: linear-gradient(135deg, #9945FF, #14F195); color: #fff; }
+.crypto-item .name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.crypto-item .rate { font-size: 12px; color: #888; }
+
+.max-badge {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 64px; height: 64px; border-radius: 50%;
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  color: #fff; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-weight: 800; font-size: 18px; line-height: 1;
+  box-shadow: 0 4px 16px rgba(6,182,212,0.4);
+  z-index: 2;
+}
+.max-badge span { font-size: 9px; font-weight: 600; letter-spacing: 1px; }
+
+/* Premium card */
+.premium {
+  padding: 48px 20px; text-align: center;
+}
+.premium-card-section {
+  background: linear-gradient(135deg, #1a1a2e, #2d2d44);
+  border-radius: 24px; padding: 32px 24px; color: #fff;
+}
+.premium .section-badge { background: rgba(255,255,255,0.1); color: #f59e0b; }
+.premium h2 { font-size: 28px; font-weight: 800; line-height: 1.2; margin-bottom: 8px; color: #fff; }
+.premium .sub { font-size: 13px; color: #aaa; margin-bottom: 20px; }
+.premium-benefits { text-align: left; margin-bottom: 24px; }
+.premium-benefit {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 8px 0; font-size: 14px; color: #ccc;
+}
+.premium-benefit .icon { color: #f59e0b; font-size: 16px; flex-shrink: 0; }
+
+.premium-card-visual {
+  background: linear-gradient(135deg, #2a2a3e, #3a3a50);
+  border-radius: 14px; padding: 20px; margin-bottom: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  text-align: left; position: relative; overflow: hidden;
+}
+.premium-card-visual::before {
+  content: ''; position: absolute; top: 0; right: 0;
+  width: 100px; height: 100px;
+  background: radial-gradient(circle, rgba(245,158,11,0.2), transparent);
+}
+.premium-card-logo { font-size: 12px; font-weight: 600; color: #aaa; margin-bottom: 28px; }
+.premium-card-num { font-size: 14px; color: #888; letter-spacing: 3px; margin-bottom: 20px; }
+.premium-card-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+.premium-card-name { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+.premium-card-date { font-size: 11px; color: #888; }
+
+.btn-check {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px; border-radius: 28px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff; font-size: 15px; font-weight: 600;
+  border: none; cursor: pointer;
+}
+.btn-check::after { content: '→'; }
+
+/* CTA */
+.cta {
+  padding: 48px 20px; text-align: center;
+}
+.cta-box {
+  background: linear-gradient(135deg, #3B5BFF, #4f46e5);
+  border-radius: 24px; padding: 36px 24px; color: #fff;
+}
+.cta h2 { font-size: 26px; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
+.cta p { font-size: 14px; color: rgba(255,255,255,0.8); margin-bottom: 24px; line-height: 1.5; }
+.btn-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px; border-radius: 28px;
+  background: #fff; color: #3B5BFF;
+  font-size: 15px; font-weight: 600;
+  border: none; cursor: pointer; margin-bottom: 20px;
+}
+.cta-features {
+  display: flex; flex-direction: column; gap: 8px;
+  font-size: 13px; color: rgba(255,255,255,0.8);
+}
+.cta-features span { display: flex; align-items: center; gap: 6px; justify-content: center; }
+.cta-features .check { color: #22c55e; }
+
+/* Footer */
+.footer {
+  padding: 48px 20px 24px; text-align: center;
+  border-top: 1px solid #f0f0f0;
+}
+.footer-logo {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-bottom: 12px;
+}
+.footer-logo .shield {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, #3B5BFF, #6366f1);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 18px;
+}
+.footer-logo .name { font-size: 18px; font-weight: 700; }
+.footer-desc { font-size: 13px; color: #888; line-height: 1.5; margin-bottom: 16px; max-width: 300px; margin-left: auto; margin-right: auto; }
+.footer-socials {
+  display: flex; justify-content: center; gap: 12px; margin-bottom: 28px;
+}
+.footer-socials a {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: #f4f4f8; display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: #555;
+}
+.footer-nav { margin-bottom: 28px; }
+.footer-nav h4 { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+.footer-nav a { display: block; font-size: 14px; color: #888; padding: 6px 0; }
+.footer-legal { margin-bottom: 28px; }
+.footer-legal h4 { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+.footer-legal a { display: block; font-size: 14px; color: #888; padding: 6px 0; }
+.footer-support { margin-bottom: 32px; }
+.footer-support h4 { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+.footer-support a { display: block; font-size: 14px; color: #888; padding: 6px 0; }
+
+/* Licenses */
+.licenses { padding: 0 20px 32px; }
+.licenses-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: #888; margin-bottom: 16px;
+}
+.licenses-title .icon { font-size: 16px; }
+.license-card {
+  border: 1px solid #e8e8e8; border-radius: 16px;
+  padding: 20px; margin-bottom: 12px;
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.license-flag { font-size: 28px; flex-shrink: 0; }
+.license-info h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.license-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 11px; font-weight: 700; margin-bottom: 6px;
+}
+.license-badge.red { background: #fee2e2; color: #dc2626; }
+.license-badge.blue { background: #dbeafe; color: #2563eb; }
+.license-badge.purple { background: #ede9fe; color: #7c3aed; }
+.license-badge.green { background: #dcfce7; color: #16a34a; }
+.license-info p { font-size: 12px; color: #888; line-height: 1.4; }
+
+/* Compliance */
+.compliance {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
+  padding: 20px; margin-bottom: 16px;
+}
+.compliance-badge {
+  padding: 8px 14px; border-radius: 8px;
+  background: #f4f4f8; font-size: 11px;
+  font-weight: 600; color: #666;
+}
+.footer-bottom {
+  text-align: center; padding: 16px 20px;
+  border-top: 1px solid #f0f0f0;
+  font-size: 12px; color: #aaa;
+}
+.footer-bottom p { margin-bottom: 4px; }
+.payment-icons {
+  display: flex; justify-content: center; gap: 12px;
+  margin-top: 8px; font-size: 14px; font-weight: 700; color: #888;
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-left">
+    <div class="lang" id="lang">
+      <div class="lang-select" id="langToggle">
+        <span id="langLabel">RU / Русский</span>
+        <span class="caret">▼</span>
+      </div>
+      <div class="lang-menu" id="langMenu">
+        <div class="lang-option" data-lang="ru"><span class="flag">🇷🇺</span> Русский <span class="check">✓</span></div>
+        <div class="lang-option" data-lang="en"><span class="flag">🇬🇧</span> English <span class="check">✓</span></div>
+        <div class="lang-option" data-lang="es"><span class="flag">🇪🇸</span> Español <span class="check">✓</span></div>
+        <div class="lang-option" data-lang="de"><span class="flag">🇩🇪</span> Deutsch <span class="check">✓</span></div>
+      </div>
+    </div>
+    <div class="header-logos">
+      <span class="trust-logo"> TRUST</span>
+      <span class="sep">×</span>
+      <span>Revolut</span>
+    </div>
+  </div>
+  <button class="btn-start" data-i18n="nav_start">Начать</button>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-badge"><span class="dot"></span> <span data-i18n="hero_badge">доступно по всему миру</span></div>
+  <h1><span data-i18n="hero_title_1">Тратьте крипту как наличные.</span> <span class="accent" data-i18n="hero_title_2">Везде.</span></h1>
+  <p data-i18n="hero_desc">Первая кредитная карта, подключённая напрямую к вашему крипто-кошельку. Тратьте Bitcoin, Ethereum и стейблкоины в 80М+ магазинов по всему миру без комиссий за конвертацию.</p>
+  <button class="btn-primary" data-i18n="hero_connect">Подключить</button>
+  <a href="#" class="hero-link" data-i18n="hero_learn">Узнать больше</a>
+
+  <div class="card-visual">
+    <div class="card-img">
+      <div class="card-chip"></div>
+      <div class="card-number">•••• •••• •••• 4821</div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <span><span class="check">✓</span> <span data-i18n="stat_nocheck">Без проверки кредита</span></span>
+    <span><span class="check">✓</span> <span data-i18n="stat_instant">Мгновенное одобрение</span></span>
+  </div>
+
+  <div class="trust-bar">
+    <div class="trust-amount"><span>$</span>650М+</div>
+    <div data-i18n="trust_label">активов под управлением</div>
+  </div>
+</section>
+
+<!-- Wallets -->
+<section class="wallets">
+  <p data-i18n="wallets_title">Работает с вашими любимыми кошельками</p>
+  <div class="wallet-logos">
+    <span>Phantom</span>
+    <span>Ledger</span>
+    <span>Exodus</span>
+  </div>
+</section>
+
+<!-- Investors -->
+<section class="investors">
+  <p data-i18n="investors_title">Наши инвесторы</p>
+  <div class="investor-logos">
+    <span>Paradigm</span>
+    <span>SEQUOIA</span>
+    <span>PANTERA</span>
+    <span>✳ BCAP</span>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="features">
+  <div class="section-badge">⚡ <span data-i18n="features_badge">Возможности</span></div>
+  <h2><span data-i18n="features_title_1">Всё, что нужно.</span><br><span data-i18n="features_title_2">Ничего лишнего.</span></h2>
+
+  <div class="feature-card">
+    <div class="feature-icon blue">🔗</div>
+    <h3 data-i18n="feature1_title">Подключите Trust Wallet и другие</h3>
+    <p data-i18n="feature1_desc">Подключите Trust Wallet, MetaMask, Ledger или любой другой self-custody кошелёк — Revolut Cryptocard списывает прямо с крипто-баланса.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon light">🌍</div>
+    <h3 data-i18n="feature2_title">Глобальное принятие</h3>
+    <p data-i18n="feature2_desc">Принимается в 80+ миллионах магазинов по всему миру. Используйте везде, где принимают Visa и Mastercard.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon light">📱</div>
+    <h3 data-i18n="feature3_title">Apple Pay и Google Pay</h3>
+    <p data-i18n="feature3_desc">Добавьте карту в Apple Pay или Google Pay для бесконтактных платежей. Платите одним касанием телефона или часов.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon purple">🔒</div>
+    <h3 data-i18n="feature4_title">Банковская безопасность</h3>
+    <p data-i18n="feature4_desc">256-битное шифрование, биометрическая идентификация и мониторинг мошенничества в реальном времени.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon green">⚡</div>
+    <h3 data-i18n="feature5_title">Мгновенное одобрение</h3>
+    <p data-i18n="feature5_desc">Получите одобрение за секунды. Без проверки кредита, без бумаг. Просто подключите кошелёк.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon blue">🎁</div>
+    <h3 data-i18n="feature6_title">Крипто-награды</h3>
+    <p data-i18n="feature6_desc">Получайте до 5% кэшбэка в BTC, ETH или стейблкоинах с каждой покупки.</p>
+  </div>
+</section>
+
+<!-- Rewards -->
+<section class="rewards">
+  <div class="section-badge">☆ <span data-i18n="rewards_badge">Награды</span></div>
+  <h2 data-i18n="rewards_title">Зарабатывайте крипту с каждой покупкой.</h2>
+  <p data-i18n="rewards_desc">Превращайте повседневные покупки в рост портфеля — наша программа наград автоматически конвертирует кэшбэк в выбранную криптовалюту.</p>
+
+  <div class="reward-tiers">
+    <div class="reward-tier">
+      <span class="percent">3%</span>
+      <span class="label" data-i18n="tier1_label">Рестораны и путешествия</span>
+    </div>
+    <div class="reward-tier">
+      <span class="percent">2%</span>
+      <span class="label" data-i18n="tier2_label">Онлайн-покупки</span>
+    </div>
+    <div class="reward-tier">
+      <span class="percent">1%</span>
+      <span class="label" data-i18n="tier3_label">Всё остальное</span>
+    </div>
+  </div>
+
+  <div class="crypto-rewards">
+    <div class="crypto-item">
+      <div class="icon btc">₿</div>
+      <div class="name">Bitcoin</div>
+      <div class="rate"><span data-i18n="upto">До</span> 3% <span data-i18n="cashback">кэшбэка</span></div>
+    </div>
+    <div class="crypto-item">
+      <div class="icon eth">Ξ</div>
+      <div class="name">Ethereum</div>
+      <div class="rate"><span data-i18n="upto">До</span> 3% <span data-i18n="cashback">кэшбэка</span></div>
+    </div>
+    <div class="crypto-item">
+      <div class="icon usdt">₮</div>
+      <div class="name">USDT</div>
+      <div class="rate"><span data-i18n="upto">До</span> 2% <span data-i18n="cashback">кэшбэка</span></div>
+    </div>
+    <div class="crypto-item">
+      <div class="icon sol">◎</div>
+      <div class="name">Solana</div>
+      <div class="rate"><span data-i18n="upto">До</span> 4% <span data-i18n="cashback">кэшбэка</span></div>
+    </div>
+    <div class="max-badge">5%<span>MAX</span></div>
+  </div>
+</section>
+
+<!-- Premium -->
+<section class="premium">
+  <div class="premium-card-section">
+    <div class="section-badge">✦ <span data-i18n="premium_badge">Эксклюзив</span></div>
+    <h2><span data-i18n="premium_title_1">Металлическая карта.</span> <span data-i18n="premium_title_2">Бесплатно.</span></h2>
+    <p class="sub" data-i18n="premium_sub">Храните $100,000+ USDT на подключённом крипто-кошельке и получите эксклюзивную премиум-карту из металла — совершенно бесплатно.</p>
+
+    <div class="premium-benefits">
+      <div class="premium-benefit"><span class="icon">✦</span> <span data-i18n="premium_b1">Премиум металлический дизайн</span></div>
+      <div class="premium-benefit"><span class="icon">✦</span> <span data-i18n="premium_b2">Доступ в бизнес-залы аэропортов</span></div>
+      <div class="premium-benefit"><span class="icon">✦</span> <span data-i18n="premium_b3">Приоритетная поддержка 24/7</span></div>
+      <div class="premium-benefit"><span class="icon">✦</span> <span data-i18n="premium_b4">Двойной множитель наград</span></div>
+    </div>
+
+    <div class="premium-card-visual">
+      <div class="premium-card-logo">Trust Wallet</div>
+      <div class="premium-card-num">•••• •••• •••• 9818</div>
+      <div class="premium-card-bottom">
+        <div class="premium-card-name">SATOSHI NAKAMOTO</div>
+        <div class="premium-card-date">09/28</div>
+      </div>
+    </div>
+
+    <button class="btn-check" data-i18n="btn_check">Проверить доступность</button>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <div class="cta-box">
+    <h2 data-i18n="cta_title">Готовы изменить способ траты крипто?</h2>
+    <p data-i18n="cta_desc">Присоединяйтесь к 500,000+ пользователям, которые доверяют Revolut Cryptocard для ежедневных крипто-расходов.</p>
+    <button class="btn-cta" data-i18n="cta_btn">Подать заявку — Бесплатно</button>
+    <div class="cta-features">
+      <span><span class="check">✓</span> <span data-i18n="cta_f1">Без скрытых комиссий</span></span>
+      <span><span class="check">✓</span> <span data-i18n="cta_f2">Отмена в любое время</span></span>
+      <span><span class="check">✓</span> <span data-i18n="cta_f3">Поддержка 24/7</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-logo">
+    <div class="shield">🛡</div>
+    <span class="name">Trust Wallet Card</span>
+  </div>
+  <p class="footer-desc" data-i18n="footer_desc">Будущее крипто-платежей. Тратьте цифровые активы в любой точке мира с нашими лицензированными картами.</p>
+  <div class="footer-socials">
+    <a href="#">𝕏</a>
+    <a href="#">✈</a>
+    <a href="#">in</a>
+  </div>
+
+  <div class="footer-nav">
+    <h4 data-i18n="foot_product">Продукт</h4>
+    <a href="#" data-i18n="foot_features">Возможности</a>
+    <a href="#" data-i18n="foot_rewards">Награды</a>
+    <a href="#" data-i18n="foot_premium">Премиум карта</a>
+    <a href="#">FAQ</a>
+  </div>
+
+  <div class="footer-legal">
+    <h4 data-i18n="foot_legal">Правовая информация</h4>
+    <a href="#" data-i18n="foot_privacy">Политика конфиденциальности</a>
+    <a href="#" data-i18n="foot_terms">Условия использования</a>
+    <a href="#" data-i18n="foot_cookies">Политика cookies</a>
+    <a href="#" data-i18n="foot_aml">Политика AML</a>
+  </div>
+
+  <div class="footer-support">
+    <h4 data-i18n="foot_support">Поддержка</h4>
+    <a href="#" data-i18n="foot_help">Центр помощи</a>
+    <a href="#" data-i18n="foot_contact">Связаться с нами</a>
+    <a href="#" data-i18n="foot_status">Статус сервиса</a>
+    <a href="#" data-i18n="foot_security">Безопасность</a>
+  </div>
+</footer>
+
+<!-- Licenses -->
+<section class="licenses">
+  <div class="licenses-title"><span class="icon">◎</span> <span data-i18n="lic_title">Лицензированный эмитент карт</span></div>
+
+  <div class="license-card">
+    <div class="license-flag">🇨🇦</div>
+    <div class="license-info">
+      <h4>Canada</h4>
+      <span class="license-badge red">FINTRAC Registered MSB</span>
+      <p>License No. M22847361<br>200 Bay Street, Suite 3600<br>Toronto, ON M5J 2J1</p>
+    </div>
+  </div>
+
+  <div class="license-card">
+    <div class="license-flag">🇳🇱</div>
+    <div class="license-info">
+      <h4>Netherlands</h4>
+      <span class="license-badge blue">DNB Licensed EMI</span>
+      <p>License No. R197432<br>Keizersgracht 482<br>1017 EG Amsterdam</p>
+    </div>
+  </div>
+
+  <div class="license-card">
+    <div class="license-flag">🇬🇧</div>
+    <div class="license-info">
+      <h4>United Kingdom</h4>
+      <span class="license-badge purple">FCA Authorized EMI</span>
+      <p>FRN: 926481<br>One Canada Square, Level 42<br>Canary Wharf, London E14 5AB</p>
+    </div>
+  </div>
+
+  <div class="license-card">
+    <div class="license-flag">🇭🇰</div>
+    <div class="license-info">
+      <h4>Hong Kong</h4>
+      <span class="license-badge green">SFC Licensed SVF</span>
+      <p>License No. SVF0058<br>Two IFC, 88 Queensway<br>Central, Hong Kong</p>
+    </div>
+  </div>
+</section>
+
+<!-- Compliance -->
+<div class="compliance">
+  <span class="compliance-badge">PCI DSS Level 1</span>
+  <span class="compliance-badge">SOC 2 Type II</span>
+  <span class="compliance-badge">GDPR Compliant</span>
+  <span class="compliance-badge">ISO 27001</span>
+</div>
+
+<div class="footer-bottom">
+  <p data-i18n="copyright">© 2026 Revolut Cryptocurrency. Все права защищены.</p>
+  <p data-i18n="copyright_sub">Revolut Cryptocard выпускается лицензированным эмитентом электронных денег и регулируется Revolut Payments. Все операции защищены в соответствии с законодательством.</p>
+  <div class="payment-icons">
+    <span>VISA</span>
+    <span>Mastercard</span>
+    <span>🍎 Pay</span>
+    <span>G Pay</span>
+  </div>
+</div>
+
+<script>
+const I18N = {
+  ru: {
+    _label: "RU / Русский",
+    nav_start: "Начать",
+    hero_badge: "доступно по всему миру",
+    hero_title_1: "Тратьте крипту как наличные.",
+    hero_title_2: "Везде.",
+    hero_desc: "Первая кредитная карта, подключённая напрямую к вашему крипто-кошельку. Тратьте Bitcoin, Ethereum и стейблкоины в 80М+ магазинов по всему миру без комиссий за конвертацию.",
+    hero_connect: "Подключить",
+    hero_learn: "Узнать больше",
+    stat_nocheck: "Без проверки кредита",
+    stat_instant: "Мгновенное одобрение",
+    trust_label: "активов под управлением",
+    wallets_title: "Работает с вашими любимыми кошельками",
+    investors_title: "Наши инвесторы",
+    features_badge: "Возможности",
+    features_title_1: "Всё, что нужно.",
+    features_title_2: "Ничего лишнего.",
+    feature1_title: "Подключите Trust Wallet и другие",
+    feature1_desc: "Подключите Trust Wallet, MetaMask, Ledger или любой другой self-custody кошелёк — Revolut Cryptocard списывает прямо с крипто-баланса.",
+    feature2_title: "Глобальное принятие",
+    feature2_desc: "Принимается в 80+ миллионах магазинов по всему миру. Используйте везде, где принимают Visa и Mastercard.",
+    feature3_title: "Apple Pay и Google Pay",
+    feature3_desc: "Добавьте карту в Apple Pay или Google Pay для бесконтактных платежей. Платите одним касанием телефона или часов.",
+    feature4_title: "Банковская безопасность",
+    feature4_desc: "256-битное шифрование, биометрическая идентификация и мониторинг мошенничества в реальном времени.",
+    feature5_title: "Мгновенное одобрение",
+    feature5_desc: "Получите одобрение за секунды. Без проверки кредита, без бумаг. Просто подключите кошелёк.",
+    feature6_title: "Крипто-награды",
+    feature6_desc: "Получайте до 5% кэшбэка в BTC, ETH или стейблкоинах с каждой покупки.",
+    rewards_badge: "Награды",
+    rewards_title: "Зарабатывайте крипту с каждой покупкой.",
+    rewards_desc: "Превращайте повседневные покупки в рост портфеля — наша программа наград автоматически конвертирует кэшбэк в выбранную криптовалюту.",
+    tier1_label: "Рестораны и путешествия",
+    tier2_label: "Онлайн-покупки",
+    tier3_label: "Всё остальное",
+    upto: "До", cashback: "кэшбэка",
+    premium_badge: "Эксклюзив",
+    premium_title_1: "Металлическая карта.",
+    premium_title_2: "Бесплатно.",
+    premium_sub: "Храните $100,000+ USDT на подключённом крипто-кошельке и получите эксклюзивную премиум-карту из металла — совершенно бесплатно.",
+    premium_b1: "Премиум металлический дизайн",
+    premium_b2: "Доступ в бизнес-залы аэропортов",
+    premium_b3: "Приоритетная поддержка 24/7",
+    premium_b4: "Двойной множитель наград",
+    btn_check: "Проверить доступность",
+    cta_title: "Готовы изменить способ траты крипто?",
+    cta_desc: "Присоединяйтесь к 500,000+ пользователям, которые доверяют Revolut Cryptocard для ежедневных крипто-расходов.",
+    cta_btn: "Подать заявку — Бесплатно",
+    cta_f1: "Без скрытых комиссий",
+    cta_f2: "Отмена в любое время",
+    cta_f3: "Поддержка 24/7",
+    footer_desc: "Будущее крипто-платежей. Тратьте цифровые активы в любой точке мира с нашими лицензированными картами.",
+    foot_product: "Продукт", foot_features: "Возможности", foot_rewards: "Награды", foot_premium: "Премиум карта",
+    foot_legal: "Правовая информация", foot_privacy: "Политика конфиденциальности", foot_terms: "Условия использования", foot_cookies: "Политика cookies", foot_aml: "Политика AML",
+    foot_support: "Поддержка", foot_help: "Центр помощи", foot_contact: "Связаться с нами", foot_status: "Статус сервиса", foot_security: "Безопасность",
+    lic_title: "Лицензированный эмитент карт",
+    copyright: "© 2026 Revolut Cryptocurrency. Все права защищены.",
+    copyright_sub: "Revolut Cryptocard выпускается лицензированным эмитентом электронных денег и регулируется Revolut Payments. Все операции защищены в соответствии с законодательством."
+  },
+  en: {
+    _label: "EN / English",
+    nav_start: "Get Started",
+    hero_badge: "available worldwide",
+    hero_title_1: "Spend crypto like cash.",
+    hero_title_2: "Everywhere.",
+    hero_desc: "The first credit card connected directly to your crypto wallet. Spend Bitcoin, Ethereum and stablecoins at 80M+ stores worldwide with zero conversion fees.",
+    hero_connect: "Connect",
+    hero_learn: "Learn more",
+    stat_nocheck: "No credit check",
+    stat_instant: "Instant approval",
+    trust_label: "assets under management",
+    wallets_title: "Works with your favorite wallets",
+    investors_title: "Our investors",
+    features_badge: "Features",
+    features_title_1: "Everything you need.",
+    features_title_2: "Nothing you don't.",
+    feature1_title: "Connect Trust Wallet & more",
+    feature1_desc: "Connect Trust Wallet, MetaMask, Ledger or any other self-custody wallet — Revolut Cryptocard charges straight from your crypto balance.",
+    feature2_title: "Global acceptance",
+    feature2_desc: "Accepted at 80+ million stores worldwide. Use it anywhere Visa and Mastercard are accepted.",
+    feature3_title: "Apple Pay & Google Pay",
+    feature3_desc: "Add the card to Apple Pay or Google Pay for contactless payments. Pay with one tap of your phone or watch.",
+    feature4_title: "Bank-grade security",
+    feature4_desc: "256-bit encryption, biometric authentication and real-time fraud monitoring.",
+    feature5_title: "Instant approval",
+    feature5_desc: "Get approved in seconds. No credit check, no paperwork. Just connect your wallet.",
+    feature6_title: "Crypto rewards",
+    feature6_desc: "Earn up to 5% cashback in BTC, ETH or stablecoins on every purchase.",
+    rewards_badge: "Rewards",
+    rewards_title: "Earn crypto on every purchase.",
+    rewards_desc: "Turn everyday purchases into portfolio growth — our rewards program automatically converts cashback into your chosen cryptocurrency.",
+    tier1_label: "Restaurants & travel",
+    tier2_label: "Online shopping",
+    tier3_label: "Everything else",
+    upto: "Up to", cashback: "cashback",
+    premium_badge: "Exclusive",
+    premium_title_1: "Metal card.",
+    premium_title_2: "Free.",
+    premium_sub: "Hold $100,000+ USDT in your connected crypto wallet and get an exclusive premium metal card — completely free.",
+    premium_b1: "Premium metal design",
+    premium_b2: "Airport business lounge access",
+    premium_b3: "Priority 24/7 support",
+    premium_b4: "Double rewards multiplier",
+    btn_check: "Check availability",
+    cta_title: "Ready to change how you spend crypto?",
+    cta_desc: "Join 500,000+ users who trust Revolut Cryptocard for their everyday crypto spending.",
+    cta_btn: "Apply Now — Free",
+    cta_f1: "No hidden fees",
+    cta_f2: "Cancel anytime",
+    cta_f3: "24/7 support",
+    footer_desc: "The future of crypto payments. Spend your digital assets anywhere in the world with our licensed cards.",
+    foot_product: "Product", foot_features: "Features", foot_rewards: "Rewards", foot_premium: "Premium card",
+    foot_legal: "Legal", foot_privacy: "Privacy Policy", foot_terms: "Terms of Use", foot_cookies: "Cookie Policy", foot_aml: "AML Policy",
+    foot_support: "Support", foot_help: "Help Center", foot_contact: "Contact Us", foot_status: "Service Status", foot_security: "Security",
+    lic_title: "Licensed card issuer",
+    copyright: "© 2026 Revolut Cryptocurrency. All rights reserved.",
+    copyright_sub: "Revolut Cryptocard is issued by a licensed electronic money institution and regulated by Revolut Payments. All transactions are protected in accordance with applicable law."
+  },
+  es: {
+    _label: "ES / Español",
+    nav_start: "Empezar",
+    hero_badge: "disponible en todo el mundo",
+    hero_title_1: "Gasta cripto como efectivo.",
+    hero_title_2: "En todas partes.",
+    hero_desc: "La primera tarjeta de crédito conectada directamente a tu monedero cripto. Gasta Bitcoin, Ethereum y stablecoins en más de 80M de tiendas en todo el mundo sin comisiones de conversión.",
+    hero_connect: "Conectar",
+    hero_learn: "Saber más",
+    stat_nocheck: "Sin verificación de crédito",
+    stat_instant: "Aprobación instantánea",
+    trust_label: "activos bajo gestión",
+    wallets_title: "Funciona con tus monederos favoritos",
+    investors_title: "Nuestros inversores",
+    features_badge: "Funciones",
+    features_title_1: "Todo lo que necesitas.",
+    features_title_2: "Nada de más.",
+    feature1_title: "Conecta Trust Wallet y más",
+    feature1_desc: "Conecta Trust Wallet, MetaMask, Ledger o cualquier otro monedero self-custody — Revolut Cryptocard cobra directo de tu saldo cripto.",
+    feature2_title: "Aceptación global",
+    feature2_desc: "Aceptada en más de 80 millones de tiendas en todo el mundo. Úsala donde acepten Visa y Mastercard.",
+    feature3_title: "Apple Pay y Google Pay",
+    feature3_desc: "Añade la tarjeta a Apple Pay o Google Pay para pagos sin contacto. Paga con un toque de tu teléfono o reloj.",
+    feature4_title: "Seguridad bancaria",
+    feature4_desc: "Cifrado de 256 bits, autenticación biométrica y monitoreo de fraude en tiempo real.",
+    feature5_title: "Aprobación instantánea",
+    feature5_desc: "Aprobación en segundos. Sin verificación de crédito, sin papeleo. Solo conecta tu monedero.",
+    feature6_title: "Recompensas cripto",
+    feature6_desc: "Gana hasta un 5% de cashback en BTC, ETH o stablecoins en cada compra.",
+    rewards_badge: "Recompensas",
+    rewards_title: "Gana cripto en cada compra.",
+    rewards_desc: "Convierte tus compras diarias en crecimiento de cartera — nuestro programa de recompensas convierte automáticamente el cashback en la criptomoneda que elijas.",
+    tier1_label: "Restaurantes y viajes",
+    tier2_label: "Compras online",
+    tier3_label: "Todo lo demás",
+    upto: "Hasta", cashback: "de cashback",
+    premium_badge: "Exclusivo",
+    premium_title_1: "Tarjeta metálica.",
+    premium_title_2: "Gratis.",
+    premium_sub: "Mantén más de $100,000 USDT en tu monedero cripto conectado y obtén una tarjeta premium de metal exclusiva — totalmente gratis.",
+    premium_b1: "Diseño premium en metal",
+    premium_b2: "Acceso a salas VIP de aeropuertos",
+    premium_b3: "Soporte prioritario 24/7",
+    premium_b4: "Doble multiplicador de recompensas",
+    btn_check: "Comprobar disponibilidad",
+    cta_title: "¿Listo para cambiar cómo gastas cripto?",
+    cta_desc: "Únete a más de 500,000 usuarios que confían en Revolut Cryptocard para sus gastos diarios en cripto.",
+    cta_btn: "Solicitar ahora — Gratis",
+    cta_f1: "Sin comisiones ocultas",
+    cta_f2: "Cancela cuando quieras",
+    cta_f3: "Soporte 24/7",
+    footer_desc: "El futuro de los pagos cripto. Gasta tus activos digitales en cualquier parte del mundo con nuestras tarjetas con licencia.",
+    foot_product: "Producto", foot_features: "Funciones", foot_rewards: "Recompensas", foot_premium: "Tarjeta premium",
+    foot_legal: "Información legal", foot_privacy: "Política de privacidad", foot_terms: "Términos de uso", foot_cookies: "Política de cookies", foot_aml: "Política AML",
+    foot_support: "Soporte", foot_help: "Centro de ayuda", foot_contact: "Contáctanos", foot_status: "Estado del servicio", foot_security: "Seguridad",
+    lic_title: "Emisor de tarjetas con licencia",
+    copyright: "© 2026 Revolut Cryptocurrency. Todos los derechos reservados.",
+    copyright_sub: "Revolut Cryptocard es emitida por una entidad de dinero electrónico con licencia y regulada por Revolut Payments. Todas las transacciones están protegidas conforme a la ley aplicable."
+  },
+  de: {
+    _label: "DE / Deutsch",
+    nav_start: "Loslegen",
+    hero_badge: "weltweit verfügbar",
+    hero_title_1: "Krypto wie Bargeld ausgeben.",
+    hero_title_2: "Überall.",
+    hero_desc: "Die erste Kreditkarte, die direkt mit deinem Krypto-Wallet verbunden ist. Gib Bitcoin, Ethereum und Stablecoins in über 80 Mio. Geschäften weltweit aus — ohne Umrechnungsgebühren.",
+    hero_connect: "Verbinden",
+    hero_learn: "Mehr erfahren",
+    stat_nocheck: "Keine Bonitätsprüfung",
+    stat_instant: "Sofortige Freigabe",
+    trust_label: "verwaltetes Vermögen",
+    wallets_title: "Funktioniert mit deinen Lieblings-Wallets",
+    investors_title: "Unsere Investoren",
+    features_badge: "Funktionen",
+    features_title_1: "Alles, was du brauchst.",
+    features_title_2: "Nichts Überflüssiges.",
+    feature1_title: "Trust Wallet & mehr verbinden",
+    feature1_desc: "Verbinde Trust Wallet, MetaMask, Ledger oder ein beliebiges anderes Self-Custody-Wallet — Revolut Cryptocard bucht direkt von deinem Krypto-Guthaben ab.",
+    feature2_title: "Globale Akzeptanz",
+    feature2_desc: "Akzeptiert in über 80 Millionen Geschäften weltweit. Nutze sie überall dort, wo Visa und Mastercard akzeptiert werden.",
+    feature3_title: "Apple Pay & Google Pay",
+    feature3_desc: "Füge die Karte zu Apple Pay oder Google Pay hinzu für kontaktloses Bezahlen. Zahle mit einem Tippen deines Handys oder deiner Uhr.",
+    feature4_title: "Bank-Sicherheit",
+    feature4_desc: "256-Bit-Verschlüsselung, biometrische Authentifizierung und Betrugsüberwachung in Echtzeit.",
+    feature5_title: "Sofortige Freigabe",
+    feature5_desc: "Freigabe in Sekunden. Keine Bonitätsprüfung, kein Papierkram. Einfach Wallet verbinden.",
+    feature6_title: "Krypto-Prämien",
+    feature6_desc: "Erhalte bis zu 5% Cashback in BTC, ETH oder Stablecoins bei jedem Einkauf.",
+    rewards_badge: "Prämien",
+    rewards_title: "Verdiene Krypto bei jedem Einkauf.",
+    rewards_desc: "Verwandle alltägliche Einkäufe in Portfoliowachstum — unser Prämienprogramm wandelt Cashback automatisch in die von dir gewählte Kryptowährung um.",
+    tier1_label: "Restaurants & Reisen",
+    tier2_label: "Online-Einkäufe",
+    tier3_label: "Alles andere",
+    upto: "Bis zu", cashback: "Cashback",
+    premium_badge: "Exklusiv",
+    premium_title_1: "Metallkarte.",
+    premium_title_2: "Kostenlos.",
+    premium_sub: "Halte mehr als 100.000 USDT in deinem verbundenen Krypto-Wallet und erhalte eine exklusive Premium-Metallkarte — komplett kostenlos.",
+    premium_b1: "Premium-Metalldesign",
+    premium_b2: "Zugang zu Flughafen-Lounges",
+    premium_b3: "Priorisierter 24/7-Support",
+    premium_b4: "Doppelter Prämien-Multiplikator",
+    btn_check: "Verfügbarkeit prüfen",
+    cta_title: "Bereit, dein Krypto-Ausgeben zu ändern?",
+    cta_desc: "Schließe dich über 500.000 Nutzern an, die Revolut Cryptocard für ihre täglichen Krypto-Ausgaben vertrauen.",
+    cta_btn: "Jetzt beantragen — Kostenlos",
+    cta_f1: "Keine versteckten Gebühren",
+    cta_f2: "Jederzeit kündbar",
+    cta_f3: "24/7-Support",
+    footer_desc: "Die Zukunft des Krypto-Bezahlens. Gib deine digitalen Vermögenswerte überall auf der Welt mit unseren lizenzierten Karten aus.",
+    foot_product: "Produkt", foot_features: "Funktionen", foot_rewards: "Prämien", foot_premium: "Premium-Karte",
+    foot_legal: "Rechtliches", foot_privacy: "Datenschutzrichtlinie", foot_terms: "Nutzungsbedingungen", foot_cookies: "Cookie-Richtlinie", foot_aml: "AML-Richtlinie",
+    foot_support: "Support", foot_help: "Hilfecenter", foot_contact: "Kontakt", foot_status: "Servicestatus", foot_security: "Sicherheit",
+    lic_title: "Lizenzierter Kartenherausgeber",
+    copyright: "© 2026 Revolut Cryptocurrency. Alle Rechte vorbehalten.",
+    copyright_sub: "Revolut Cryptocard wird von einem lizenzierten E-Geld-Institut herausgegeben und von Revolut Payments reguliert. Alle Transaktionen sind nach geltendem Recht geschützt."
+  }
+};
+
+const lang = document.getElementById('lang');
+const langToggle = document.getElementById('langToggle');
+const langLabel = document.getElementById('langLabel');
+
+function applyLang(code) {
+  const dict = I18N[code];
+  if (!dict) return;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key] !== undefined) el.textContent = dict[key];
+  });
+  langLabel.textContent = dict._label;
+  document.documentElement.lang = code;
+  document.querySelectorAll('.lang-option').forEach(o => {
+    o.classList.toggle('active', o.getAttribute('data-lang') === code);
+  });
+  try { localStorage.setItem('site_lang', code); } catch (e) {}
+}
+
+langToggle.addEventListener('click', (e) => {
+  e.stopPropagation();
+  lang.classList.toggle('open');
+});
+
+document.querySelectorAll('.lang-option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    applyLang(opt.getAttribute('data-lang'));
+    lang.classList.remove('open');
+  });
+});
+
+document.addEventListener('click', (e) => {
+  if (!lang.contains(e.target)) lang.classList.remove('open');
+});
+
+let saved = 'ru';
+try { saved = localStorage.getItem('site_lang') || 'ru'; } catch (e) {}
+applyLang(saved);
+</script>
+
+</body>
+</html>
